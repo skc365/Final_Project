@@ -20,3 +20,16 @@
 1. 깃허브 리포지토리 생성 ( https://github.com/skc365/Final_Project.git )   
 
 2. 1차 진행(브레인스토밍) 내용 정리 및 커밋
+
+## 2024/11/16 2차
+
+### 자세 인식 코드
+자세 인식을 할 수 있는 코드를 완성함. (참고: https://youtu.be/06TE_U21FK4?si=00_L4RfZhQEjxaQ2)
+
+### 게임 내용 구체화
+1. 컴퓨터가 랜덤으로 자세를 제시함
+2. 일정 시간 안에 제시한 자세와 일치하면 점수를 얻음
+
+### 파트 분담
+- 자세가 일치하면 점수를 추가하는 파트 => score branch
+- 각도를 계산하여 자세를 구현하는 파트 => pose branch (참고: https://www.youtube.com/watch?v=aySurynUNAw)
