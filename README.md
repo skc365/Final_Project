@@ -33,3 +33,12 @@
 ### 파트 분담
 - 자세가 일치하면 점수를 추가하는 파트 => score branch
 - 각도를 계산하여 자세를 구현하는 파트 => pose branch (참고: https://www.youtube.com/watch?v=aySurynUNAw)
+
+## 2024/11/23 3차
+
+### score branch
+- 일정 시간 내에 제시한 자세가 일치하면 점수를 얻는 부분 **해결됨**
+
+### pose branch
+- 포즈 이미지 파일의 각도와 내가 취하는 자세의 각도를 계산하고 일치하면 포즈 이미지와 같음을 알려주는 부분 **4차때까지 보완**
+- 더 많은 포즈 이미지를 구해야 함 (참고 사이트: pixabay, unsplash, and etc.)
