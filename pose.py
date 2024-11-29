@@ -33,113 +33,95 @@ def detectPose(image, pose):
         
         # 랜드마크 저장
         for landmark in results.pose_landmarks.landmark:
-            landmarks.append((int(landmark.x * width), int(landmark.y * height),
-                                  (landmark.z * width)))
+            landmarks.append((int(landmark.x * width), int(landmark.y * height), (landmark.z * width)))
 
-        def calculateAngle(landmark1, landmark2, landmark3):
+    return output_image, landmarks
 
-            #landmark 1,2,3 정의
-            x1, y1, _ = landmark1
-            x2, y2, _ = landmark2
-            x3, y3, _ = landmark3
+def calculateAngle(landmark1, landmark2, landmark3):
 
-            #각 계산
-            angle = math.degrees(math.atan2(y3 - y2, x3 - x2) - math.atan2(y1 - y2, x1 - x2))
+    #landmark 1,2,3 정의
+    x1, y1, _ = landmark1
+    x2, y2, _ = landmark2
+    x3, y3, _ = landmark3
 
-            #각이 음수이면, 360도 더해주기
-            if angle < 0:
-                angle += 360
+    #각 계산
+    angle = math.degrees(math.atan2(y3 - y2, x3 - x2) - math.atan2(y1 - y2, x1 - x2))
 
-            return angle
+    #각이 음수이면, 360도 더해주기
+    if angle < 0:
+        angle += 360
 
-        def classifyPose(landmarks, output_image, display=False):
+    return angle
 
-            label = 'Unknown Pose'
+def classifyPose(landmarks, output_image):
 
-            color = (0, 0, 255)  # Red
+    #기본 라벨은 unknown pose로 지정
+    label = 'Unknown Pose'
 
-            left_elbow_angle = calculateAngle(landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value],
-                                              landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value],
-                                              landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value])
+    #포즈를 모를 때, 빨간색
+    color = (0, 0, 255)
 
-            right_elbow_angle = calculateAngle(landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value],
-                                               landmarks[mp_pose.PoseLandmark.RIGHT_ELBOW.value],
-                                               landmarks[mp_pose.PoseLandmark.RIGHT_WRIST.value])
+    left_elbow_angle = calculateAngle(landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value],
+                                      landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value],
+                                      landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value])
 
-            left_shoulder_angle = calculateAngle(landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value],
-                                                 landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value],
-                                                 landmarks[mp_pose.PoseLandmark.LEFT_HIP.value])
+    right_elbow_angle = calculateAngle(landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value],
+                                       landmarks[mp_pose.PoseLandmark.RIGHT_ELBOW.value],
+                                       landmarks[mp_pose.PoseLandmark.RIGHT_WRIST.value])
 
-            right_shoulder_angle = calculateAngle(landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value],
-                                                 landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value],
-                                                 landmarks[mp_pose.PoseLandmark.RIGHT_ELBOW.value])
+    left_shoulder_angle = calculateAngle(landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value],
+                                         landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value],
+                                         landmarks[mp_pose.PoseLandmark.LEFT_HIP.value])
 
-            left_knee_angle = calculateAngle(landmarks[mp_pose.PoseLandmark.LEFT_HIP.value],
-                                             landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value],
-                                             landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value])
+    right_shoulder_angle = calculateAngle(landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value],
+                                          landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value],
+                                          landmarks[mp_pose.PoseLandmark.RIGHT_ELBOW.value])
 
-            right_knee_angle = calculateAngle(landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value],
-                                              landmarks[mp_pose.PoseLandmark.RIGHT_KNEE.value],
-                                              landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value])  #36:28
-            #both arms are straight
-            if left_elbow_angle > 165 and left_elbow_angle < 195 and right_elbow_angle > 165 and right_elbow_angle < 195:
-                #shoulders at required angle
-                if left_shoulder_angle > 80 and left_shoulder_angle < 110 and right_shoulder_angle >80 and right_shoulder_angle < 110:
+    left_knee_angle = calculateAngle(landmarks[mp_pose.PoseLandmark.LEFT_HIP.value],
+                                     landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value],
+                                     landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value])
 
-                    #Warrior II pose
-                    #one leg is straight
-                    if left_knee_angle > 165 and left_knee_angle < 195 or right_knee_angle > 165 and right_knee_angle < 195:
-                        #the other leg is bended at required angle
-                        if left_knee_angle > 90 and left_knee_angle < 120 or right_knee_angle > 90 and right_knee_angle < 120:
+    right_knee_angle = calculateAngle(landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value],
+                                      landmarks[mp_pose.PoseLandmark.RIGHT_KNEE.value],
+                                      landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value])
+    
+    #두 팔이 펴지고,
+    if left_elbow_angle > 165 and left_elbow_angle < 195 and right_elbow_angle > 165 and right_elbow_angle < 195:
+        #shoulders at required angle
+        if left_shoulder_angle > 80 and left_shoulder_angle < 110 and right_shoulder_angle >80 and right_shoulder_angle < 110:
 
-                            label = 'Warrior II Pose'
-
-                    #T pose
-                    #check both legs are straight
-                    if left_knee_angle > 160 and left_knee_angle < 195 and right_knee_angle > 160 and right_knee_angle < 195:
-
-                        label = 'T pose'
-
-            #tree pose
+            #Warrior II pose
             #one leg is straight
             if left_knee_angle > 165 and left_knee_angle < 195 or right_knee_angle > 165 and right_knee_angle < 195:
                 #the other leg is bended at required angle
-                if left_knee_angle > 315 and left_knee_angle < 335 or right_knee_angle > 25 and right_knee_angle < 45:
+                if left_knee_angle > 90 and left_knee_angle < 120 or right_knee_angle > 90 and right_knee_angle < 120:
 
-                    label = 'Tree Pose'
+                    label = 'Warrior II Pose'
 
-            if label != 'Unknown Pose':
+            #T pose
+            #check both legs are straight
+            if left_knee_angle > 160 and left_knee_angle < 195 and right_knee_angle > 160 and right_knee_angle < 195:
 
-                color = (0, 255, 0)  #green
+                label = 'T pose'
 
-            cv2.putText(output_image, label, (10,30), cv2.FONT_HERSHEY_PLAIN, 2, color, 2)
+    #tree pose
+    #one leg is straight
+    if left_knee_angle > 165 and left_knee_angle < 195 or right_knee_angle > 165 and right_knee_angle < 195:
+        #the other leg is bended at required angle
+        if left_knee_angle > 315 and left_knee_angle < 335 or right_knee_angle > 25 and right_knee_angle < 45:
 
-            if display:
-                plt.figure(figsize=[10,10])
-                plt.imshow(output_image[:,:,::-1]);plt.title("Output Image");plt.axis('off');
-                
-            else:
-                return output_image, label
+            label = 'Tree Pose'
 
-        image = cv2.imread('media/warriorIIpose.jpg')
-        output_image, landmarks = detectPose(image, pose, display=False)
-        if landmarks:
-            classifyPose(landmarks, output_image, display=True)
+    #포즈가 분류되면, 초록색
+    if label != 'Unknown Pose':
+        color = (0, 255, 0)  
 
-        image = cv2.imread('media/Tpose.jpg')
-        output_image, landmarks = detectPose(image, pose, display=False)
-        if landmarks:
-            classifyPose(landmarks, output_image, display=True)
+    cv2.putText(output_image, label, (10,30), cv2.FONT_HERSHEY_PLAIN, 2, color, 2)
 
-        image = cv2.imread('Tpose1.jpg')
-        output_image, landmarks = detectPose(image, pose, display=False)
-        if landmarks:
-            classifyPose(landmarks, output_image, display=True)
-            
-        cv2.imshow('Mediapipe Feed', image)
+    return output_image, label
 
-        if cv2.waitKey(1) == ord('q'):
-            break
-
-cap.release()
-cv2.destroyAllWindows()
+#image 폴더 속 warrior.jpg
+image = cv2.imread('image/warrior.jpg')
+output_image, landmarks = detectPose(image, pose)
+if landmarks:
+    classifyPose(landmarks, output_image)
