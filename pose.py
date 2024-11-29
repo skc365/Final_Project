@@ -96,21 +96,7 @@ def classifyPose(landmarks, output_image):
                 #the other leg is bended at required angle
                 if left_knee_angle > 90 and left_knee_angle < 120 or right_knee_angle > 90 and right_knee_angle < 120:
 
-                    label = 'Warrior II Pose'
-
-            #T pose
-            #check both legs are straight
-            if left_knee_angle > 160 and left_knee_angle < 195 and right_knee_angle > 160 and right_knee_angle < 195:
-
-                label = 'T pose'
-
-    #tree pose
-    #one leg is straight
-    if left_knee_angle > 165 and left_knee_angle < 195 or right_knee_angle > 165 and right_knee_angle < 195:
-        #the other leg is bended at required angle
-        if left_knee_angle > 315 and left_knee_angle < 335 or right_knee_angle > 25 and right_knee_angle < 45:
-
-            label = 'Tree Pose'
+                    label = 'Warrior Pose'
 
     #포즈가 분류되면, 초록색
     if label != 'Unknown Pose':
