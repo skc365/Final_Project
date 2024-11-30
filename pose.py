@@ -7,18 +7,19 @@ import matplotlib.pyplot as plt
 
 mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
-pose = mp.pose.Pose(static_image_mode = True, min_dectection_confidence=0.3, model_complexity=2)
+pose = mp_pose.Pose(static_image_mode=True, min_detection_confidence=0.3, model_complexity=2)
 
 url = 'http://192.168.0.4:8080/video'
 
 def detectPose(image, pose):
+
+    output_image = image.copy()
     
     # BGR -> RGB로 변환
     imageRGB = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     
     results = pose.process(imageRGB)
     
-    # Retrieve the height and width of the input image.
     height, width, _ = image.shape
     
     # 랜드마크 저장 리스트
@@ -28,7 +29,7 @@ def detectPose(image, pose):
     if results.pose_landmarks:
     
         # 랜드마크와 연결선 그리기
-        mp_drawing.draw_landmarks(image, landmark_list=results.pose_landmarks,
+        mp_drawing.draw_landmarks(image=output_image, landmark_list=results.pose_landmarks,
                                   connections=mp_pose.POSE_CONNECTIONS)
         
         # 랜드마크 저장
@@ -90,7 +91,7 @@ def classifyPose(landmarks, output_image):
         #shoulders at required angle
         if left_shoulder_angle > 80 and left_shoulder_angle < 110 and right_shoulder_angle >80 and right_shoulder_angle < 110:
 
-            #Warrior II pose
+            #Warrior pose
             #one leg is straight
             if left_knee_angle > 165 and left_knee_angle < 195 or right_knee_angle > 165 and right_knee_angle < 195:
                 #the other leg is bended at required angle
@@ -111,3 +112,38 @@ image = cv2.imread('image/warrior.jpg')
 output_image, landmarks = detectPose(image, pose)
 if landmarks:
     classifyPose(landmarks, output_image)
+
+def process_video(url, pose_model):
+
+    video = cv2.VideoCapture(url)
+    video.set(3, 1280)
+    video.set(4, 960)
+
+    while video.isOpened():
+        success, frame = video.read()
+        if not success:
+            break
+
+        #영상 좌우 반전
+        frame = cv2.flip(frame, 1)
+
+        frame_height, frame_width, _ = frame.shape
+        frame = cv2.resize(frame, (int(frame_width * (640 / frame_height)), 640))
+
+        # 포즈의 랜드마크 감지
+        frame, landmarks = detectPose(frame, pose_model)
+
+        if landmarks:
+            frame, _ = classifyPose(landmarks, frame)
+
+        cv2.imshow("Pose Classification", frame)
+
+        if cv2.waitKey(1) == ord('q'):
+            break
+
+    video.release()
+    cv2.destroyAllWindows()
+
+pose_video = mp_pose.Pose(static_image_mode=False, min_detection_confidence=0.5, model_complexity=1)
+
+process_video(url, pose_video)
