@@ -108,8 +108,11 @@ def calculate_pose_features(landmarks):
     return features
 
 def classifyPose(landmarks, output_image, model):
+
+    color = (0, 255, 0)
     
     features = calculate_pose_features(landmarks)
+    
     feature_names = [
         'left_elbow_angle', 'right_elbow_angle',
         'left_shoulder_angle', 'right_shoulder_angle',
@@ -117,30 +120,53 @@ def classifyPose(landmarks, output_image, model):
         'left_ankle_angle', 'right_ankle_angle',
         'left_hip_angle', 'right_hip_angle'
     ]
+    
     features_values = pd.DataFrame([list(features.values())], columns=feature_names)
 
-    predicted_pose = model.predict(features_values)[0]
+    # 예측 확률
+    probabilities = model.predict_proba(features_values)[0]
+    max_prob = max(probabilities)
+
+    # 예측 클래스와 확률 확인
+    predicted_pose = model.classes_[np.argmax(probabilities)]
+    print(max_prob)
+    # 확률이 0.6 미만이면 Unknown Pose로 처리
+    if max_prob < 0.5:
+        color = (0, 0, 255)
+        predicted_pose = "Unknown Pose"
     
     cv2.putText(output_image, f"Pose: {predicted_pose}", (10, 50), 
-                cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+                cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2, cv2.LINE_AA)
     
     return output_image, predicted_pose
 
 def process_video(url, pose_model, model):
+    
     video = cv2.VideoCapture(url)
+    
     while video.isOpened():
+        
         success, frame = video.read()
+        
         if not success:
             break
+        
         frame = cv2.flip(frame, 1)
+        
         frame_height, frame_width, _ = frame.shape
+        
         frame = cv2.resize(frame, (int(frame_width * (640 / frame_height)), 640))
+
         frame, landmarks = detectPose(frame, pose_model)
+        
         if landmarks:
             frame, _ = classifyPose(landmarks, frame, model)
+            
         cv2.imshow("Pose Classification", frame)
+        
         if cv2.waitKey(1) == ord('q'):
             break
+        
     video.release()
     cv2.destroyAllWindows()
 
