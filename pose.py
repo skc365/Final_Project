@@ -114,7 +114,7 @@ def classifyPose(landmarks):
                 if left_knee_angle > 90 and left_knee_angle < 120 or right_knee_angle > 90 and right_knee_angle < 120:
                     label = 'Warrior'
             #T-dance pose
-            if left_knee_angle > 165 and left_knee_angle < 195 or left_knee_angle > 165 and left_knee_angle < 195:
+            if left_knee_angle > 165 and left_knee_angle < 195 or right_knee_angle > 165 and right_knee_angle < 195:
                 if left_knee_angle > 45 and left_knee_angle < 90 or right_knee_angle > 45 and right_knee_angle < 90:
                     label = 'T-dance'
         #Y pose
@@ -122,7 +122,7 @@ def classifyPose(landmarks):
             if left_knee_angle > 165 and left_knee_angle < 195 and right_knee_angle > 165 and right_knee_angle < 195:
                 label = 'Y'
     #Tree pose
-    if left_elbow_angle > 120 and left_elbow_angle < 150 and right_elbow_angle > 120 and right_elbow_angle < 150:
+    if left_elbow_angle > 100 and left_elbow_angle < 140 and right_elbow_angle > 100 and right_elbow_angle < 140:
         if left_shoulder_angle > 140 and left_shoulder_angle < 180 and right_shoulder_angle > 140 and right_shoulder_angle < 180:
             if left_knee_angle > 170 and left_knee_angle < 190 or right_knee_angle > 170 and right_knee_angle < 190:
                 if left_knee_angle > 45 and left_knee_angle < 90 or right_knee_angle > 45 and right_knee_angle < 90:
@@ -130,7 +130,7 @@ def classifyPose(landmarks):
     return label
 
 # 비디오 처리 및 포즈 평가
-def process_video(url, pose_model, target_label, target_image):
+def process_video(video, pose_model, target_label, target_image):
     
     global score
 
@@ -196,31 +196,28 @@ def process_video(url, pose_model, target_label, target_image):
             score += 10  # 점수 증가
             cv2.putText(combined_frame, "Matched! +10", 
                         (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+            cv2.imshow("Pose Match", combined_frame)
+            cv2.waitKey(1)
             break  # 포즈가 맞으면 다음 이미지
         else:
             cv2.putText(combined_frame, "Not Matched", (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
-        cv2.putText(combined_frame, f"Target Pose: {target_label}", (text_x, text_y + 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 0), 2)
-        cv2.putText(combined_frame, f"Your Pose: {user_pose_label}", (text_x, text_y + 60), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 0), 2)
-        cv2.putText(combined_frame, f"Score: {score}", (text_x, text_y + 90), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2)
-        cv2.putText(combined_frame, f"Time Left: {remaining_time}s", (text_x, text_y + 120),
-        cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 165, 255), 2)
+            cv2.putText(combined_frame, f"Target Pose: {target_label}", (text_x, text_y + 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 0), 2)
+            cv2.putText(combined_frame, f"Your Pose: {user_pose_label}", (text_x, text_y + 60), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 0), 2)
+            cv2.putText(combined_frame, f"Score: {score}", (text_x, text_y + 90), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2)
+            cv2.putText(combined_frame, f"Time Left: {remaining_time}s", (text_x, text_y + 120),
+            cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 165, 255), 2)
 
         cv2.namedWindow("Pose Match", cv2.WINDOW_NORMAL)
         cv2.imshow("Pose Match", combined_frame)
 
         key = cv2.waitKey(1)
         if key == ord('q'):
-            video.release()
-            cv2.destroyAllWindows()
             return "exit"
         elif key == ord('e'):
-            time.sleep(1)
-            video.release()
-            cv2.destroyAllWindows()
-            return "continue"
+            #time.sleep(1)
+            return "next"
 
-    video.release()
-    cv2.destroyAllWindows()
+    return "continue"
 
 def main():
     image_folder = 'image'
@@ -229,6 +226,11 @@ def main():
     if not os.path.exists(image_folder):
         print(f"Image folder error : {image_folder}")
         return
+
+    #다음 이미지로 넘어갈 때 끊기지 않도록 비디오를 밖으로 빼기
+    video = cv2.VideoCapture(0)
+    video.set(3, 1280)
+    video.set(4, 960)
     
     while True:
         random_image_path, target_label = get_random_image(image_folder)
@@ -242,11 +244,14 @@ def main():
 
         pose_video = mp_pose.Pose(static_image_mode=False, min_detection_confidence=0.5, model_complexity=1)
 
-        result = process_video(url, pose_video, target_label, target_image)
+        result = process_video(video, pose_video, target_label, target_image)
 
         if result == "exit":
             print("Exiting program.")
             break
+        
+    video.release()
+    cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     main()
