@@ -124,9 +124,15 @@ def classifyPose(landmarks):
     #Tree pose
     if left_elbow_angle > 100 and left_elbow_angle < 140 and right_elbow_angle > 100 and right_elbow_angle < 140:
         if left_shoulder_angle > 140 and left_shoulder_angle < 180 and right_shoulder_angle > 140 and right_shoulder_angle < 180:
-            if left_knee_angle > 170 and left_knee_angle < 190 or right_knee_angle > 170 and right_knee_angle < 190:
+            if left_knee_angle > 165 and left_knee_angle < 195 or right_knee_angle > 165 and right_knee_angle < 195:
                 if left_knee_angle > 45 and left_knee_angle < 90 or right_knee_angle > 45 and right_knee_angle < 90:
                     label = 'Tree'
+    #Exciting pose
+    if left_elbow_angle > 70 and left_elbow_angle < 100 and right_elbow_angle > 70 and right_elbow_angle < 100:
+        if left_shoulder_angle > 35 and left_shoulder_angle < 65 and right_shoulder_angle > 35 and right_shoulder_angle < 65:
+            if left_knee_angle > 165 and left_knee_angle < 195 or right_knee_angle > 165 and right_knee_angle < 195:
+                if left_knee_angle > 70 and left_knee_angle < 100 or right_knee_angle > 70 and right_knee_angle < 100:
+                    label = 'Exciting'
     return label
 
 # 비디오 처리 및 포즈 평가
