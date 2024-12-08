@@ -111,8 +111,11 @@ def classifyPose(landmarks):
                 #왼쪽 다리가 특정 각도만큼 굽혀져 있을 때,
                 if right_knee_angle > 90 and right_knee_angle < 120:
                     label = 'warrior'
-                #T-dance pose
-                if right_knee_angle > 45 and right_knee_angle < 90:
+            #T-dance pose
+            #왼쪽 다리 직선
+            if right_knee_angle > 165 and right_knee_angle < 195:
+                #오른쪽 다리 굽힘
+                if left_knee_angle > 45 and left_knee_angle < 90:
                     label = 'T-dance'
         #Y pose
         #어깨
