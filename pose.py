@@ -113,6 +113,14 @@ def classifyPose(landmarks):
                 #다른 다리가 특정 각도만큼 굽혀져 있을 때,
                 if left_knee_angle > 90 and left_knee_angle < 120 or right_knee_angle > 90 and right_knee_angle < 120:
                     label = 'warrior'
+                    
+    #crossed arm squat
+    if left_knee_angle > 90 and left_knee_angle < 110 and right_knee_angle > 90 and right_knee_angle < 110:
+        if left_elbow_angle > 330 and left_elbow_angle < 360 and right_elbow_angle > 330 and right_elbow_angle < 360:
+            if left_shoulder_angle > 330 and left_shoulder_angle < 360 and right_shoulder_angle > 330 and right_shoulder_angle < 360:
+                label = 'squat'
+            
+
     '''
     각도 추가 해야 함
     '''
