@@ -10,8 +10,6 @@ mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
 pose = mp_pose.Pose(static_image_mode=True, min_detection_confidence=0.3, model_complexity=2)
 
-url = 'http://192.168.0.4:8080/video'
-
 # 초기 점수
 score = 0
 
@@ -108,31 +106,48 @@ def classifyPose(landmarks):
         if left_shoulder_angle > 80 and left_shoulder_angle < 110 and right_shoulder_angle >80 and right_shoulder_angle < 110:
 
             #Warrior pose
-            #한 다리가 직선이고,
-            if left_knee_angle > 165 and left_knee_angle < 195 or right_knee_angle > 165 and right_knee_angle < 195:
-                #다른 다리가 특정 각도만큼 굽혀져 있을 때,
-                if left_knee_angle > 90 and left_knee_angle < 120 or right_knee_angle > 90 and right_knee_angle < 120:
+            #오른쪽 다리가 직선이고,
+            if left_knee_angle > 165 and left_knee_angle < 195:
+                #왼쪽 다리가 특정 각도만큼 굽혀져 있을 때,
+                if right_knee_angle > 90 and right_knee_angle < 120:
                     label = 'warrior'
-            #T-dance pose
-            if left_knee_angle > 165 and left_knee_angle < 195 or right_knee_angle > 165 and right_knee_angle < 195:
-                if left_knee_angle > 45 and left_knee_angle < 90 or right_knee_angle > 45 and right_knee_angle < 90:
+                #T-dance pose
+                if right_knee_angle > 45 and right_knee_angle < 90:
                     label = 'T-dance'
         #Y pose
+        #어깨
         if left_shoulder_angle > 135 and left_shoulder_angle < 165 and right_shoulder_angle > 135 and right_shoulder_angle < 165:
+            #두 다리가 직선
             if left_knee_angle > 165 and left_knee_angle < 195 and right_knee_angle > 165 and right_knee_angle < 195:
                 label = 'Y'
     #Tree pose
+    #두 팔 굽힘
     if left_elbow_angle > 100 and left_elbow_angle < 140 and right_elbow_angle > 100 and right_elbow_angle < 140:
+        #어깨
         if left_shoulder_angle > 140 and left_shoulder_angle < 180 and right_shoulder_angle > 140 and right_shoulder_angle < 180:
-            if left_knee_angle > 165 and left_knee_angle < 195 or right_knee_angle > 165 and right_knee_angle < 195:
-                if left_knee_angle > 45 and left_knee_angle < 90 or right_knee_angle > 45 and right_knee_angle < 90:
+            #오른쪽 다리 직선
+            if left_knee_angle > 165 and left_knee_angle < 195:
+                #왼쪽 다리 굽힘
+                if  right_knee_angle > 45 and right_knee_angle < 90:
                     label = 'tree'
     #Exciting pose
+    #두 팔 굽힘
     if left_elbow_angle > 70 and left_elbow_angle < 100 and right_elbow_angle > 70 and right_elbow_angle < 100:
-        if left_shoulder_angle > 35 and left_shoulder_angle < 65 and right_shoulder_angle > 35 and right_shoulder_angle < 65:
-            if left_knee_angle > 165 and left_knee_angle < 195 or right_knee_angle > 165 and right_knee_angle < 195:
-                if left_knee_angle > 70 and left_knee_angle < 100 or right_knee_angle > 70 and right_knee_angle < 100:
+        #어깨
+        if left_shoulder_angle > 25 and left_shoulder_angle < 65 and right_shoulder_angle > 25 and right_shoulder_angle < 65:
+            #오른쪽 다리 직선
+            if left_knee_angle > 165 and left_knee_angle < 195:
+                #왼쪽 다리 굽힘
+                if right_knee_angle > 260 and right_knee_angle < 310:
                     label = 'exciting'
+    #Squat pose
+    #두 다리 굽힘
+    if left_knee_angle > 230 and left_knee_angle < 280 and right_knee_angle > 80 and right_knee_angle < 130:
+        #두 팔 굽힘
+        if left_elbow_angle > 290 and left_elbow_angle < 340 and right_elbow_angle > 290 and right_elbow_angle < 340:
+            #어깨
+            if left_shoulder_angle > 0 and left_shoulder_angle < 40 and right_shoulder_angle > 0 and right_shoulder_angle < 40:
+                label = 'squat'
     return label
 
 # 비디오 처리 및 포즈 평가
