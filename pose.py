@@ -10,6 +10,8 @@ mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
 pose = mp_pose.Pose(static_image_mode=True, min_detection_confidence=0.3, model_complexity=2)
 
+url = 'http://192.168.0.4:8080/video'
+
 # 초기 점수
 score = 0
 
@@ -164,10 +166,6 @@ def process_video(video, pose_model, target_label, target_image):
     #조정된 이미지 확인 디버깅
     print(f"Target image resized to: {resized_image.shape}")
 
-    video = cv2.VideoCapture(0)
-    video.set(3, 1280)  # 비디오 너비 설정
-    video.set(4, 960)  # 비디오 높이 설정
-
     # 타이머 시작
     start_time = time.time()
 
@@ -249,7 +247,7 @@ def main():
         return
 
     #다음 이미지로 넘어갈 때 끊기지 않도록 비디오를 밖으로 빼기
-    video = cv2.VideoCapture(0)
+    video = cv2.VideoCapture(url)
     video.set(3, 1280)
     video.set(4, 960)
     
