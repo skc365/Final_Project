@@ -10,7 +10,6 @@ mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
 pose = mp_pose.Pose(static_image_mode=True, min_detection_confidence=0.3, model_complexity=2)
 
-url = 'http://192.168.0.4:8080/video'
 
 # 초기 점수
 score = 0
@@ -250,7 +249,7 @@ def main():
         return
 
     #다음 이미지로 넘어갈 때 끊기지 않도록 비디오를 밖으로 빼기
-    video = cv2.VideoCapture(url)
+    video = cv2.VideoCapture(0)
     video.set(3, 1280)
     video.set(4, 960)
     
